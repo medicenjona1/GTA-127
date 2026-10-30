@@ -1,4 +1,4 @@
-name: Multi-Platform Build (PS3 & Xbox 360)
+name: Build PS3 SPRX Client
 
 on:
   push:
@@ -7,42 +7,25 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  # JOB 1: Compilación para PS3 (.sprx)
   build-ps3:
     runs-on: ubuntu-latest
     container:
-      image: ps3dev/ps3dev:latest
+      image: zeldin/ps3dev-docker:latest
+
     steps:
-      - name: Checkout del código
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Compilar SPRX
+      - name: Compilar SPRX para PS3
         run: |
-          make -C PS3Client clean
-          make -C PS3Client
+          cd GTAClient_PS3
+          make clean
+          make
 
-      - name: Subir artefacto PS3
+      - name: Subir binario .sprx generado
         uses: actions/upload-artifact@v4
         with:
-          name: ps3-binary
-          path: PS3Client/*.sprx
-
-  # JOB 2: Compilación para Xbox 360 (.xex)
-  build-xbox:
-    runs-on: windows-2019
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Compilar solución Xbox 360
-        run: |
-          msbuild GTAClient/gtaME.sln /p:Configuration=Release_LTCG /p:Platform=Xbox360
-
-      - name: Subir artefacto Xbox 360
-        uses: actions/upload-artifact@v4
-        with:
-          name: xbox360-binary
-          path: GTAClient/gtaME/**/*.xex
+          name: GTAClient-PS3-SPRX
+          path: |
+            GTAClient_PS3/*.sprx
+            GTAClient_PS3/*.prx
