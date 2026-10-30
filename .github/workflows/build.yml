@@ -21,39 +21,37 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Compilar SPRX para PS3
+      - name: Compilar y empaquetar SPRX
         run: |
           if [ -d "GTAClient_PS3" ]; then
             cd GTAClient_PS3
             make
 
-            # Generar o duplicar extensiones .sprx y .prx según lo generado
-            if [ -f GTAClient.elf ] && [ ! -f GTAClient.sprx ]; then
-              if command -v felf2prx >/dev/null 2>&1; then
-                felf2prx GTAClient.elf GTAClient.sprx
-              else
-                cp GTAClient.elf GTAClient.sprx
-              fi
-            fi
-
-            if [ -f GTAClient.sprx ] && [ ! -f GTAClient.prx ]; then
-              cp GTAClient.sprx GTAClient.prx
-            elif [ -f GTAClient.prx ] && [ ! -f GTAClient.sprx ]; then
-              cp GTAClient.prx GTAClient.sprx
-            fi
-
+            echo "=== Archivos generados ==="
             ls -la
+
+            # Buscar cualquier binario resultante (.prx, .sprx, .elf, .felf)
+            BIN_FILE=$(find . -maxdepth 1 -type f \( -name "*.prx" -o -name "*.sprx" -o -name "*.elf" -o -name "*.felf" \) | head -n 1)
+
+            if [ -n "$BIN_FILE" ]; then
+              echo "Binario detectado: $BIN_FILE"
+              cp "$BIN_FILE" GTAClient.sprx
+              cp "$BIN_FILE" GTAClient.prx
+            else
+              echo "Error: No se genero ningun ejecutable tras compilar."
+              exit 1
+            fi
           else
-            echo "Error: La carpeta 'GTAClient_PS3' no existe en el repositorio."
+            echo "Error: La carpeta 'GTAClient_PS3' no existe."
             exit 1
           fi
 
-      - name: Subir binarios generados
+      - name: Subir artefactos compilados
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: GTAClient-PS3-SPRX
+          if-no-files-found: error
           path: |
-            GTAClient_PS3/*.sprx
-            GTAClient_PS3/*.prx
-            GTAClient_PS3/*.elf
+            GTAClient_PS3/GTAClient.sprx
+            GTAClient_PS3/GTAClient.prx
