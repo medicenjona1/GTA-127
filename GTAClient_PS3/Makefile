@@ -21,6 +21,21 @@ ifneq ($(PSL1GHT_BASE),)
     include $(PSL1GHT_BASE)
 endif
 
+# Generar automáticamente .sprx y .prx desde el binario .elf generado
+all: $(TARGET).sprx $(TARGET).prx
+
+$(TARGET).sprx: $(TARGET).elf
+	@if command -v felf2prx >/dev/null 2>&1; then \
+		felf2prx $< $@; \
+	elif command -v prx-felf2prx >/dev/null 2>&1; then \
+		prx-felf2prx $< $@; \
+	else \
+		cp $< $@; \
+	fi
+
+$(TARGET).prx: $(TARGET).sprx
+	@cp $< $@
+
 .PHONY: clean
 
 clean:
