@@ -10,7 +10,7 @@ jobs:
   build-ps3:
     runs-on: ubuntu-latest
     container:
-      image: zeldin/ps3dev-docker:latest
+      image: hldtux/ps3dev:latest
 
     steps:
       - name: Checkout repo
