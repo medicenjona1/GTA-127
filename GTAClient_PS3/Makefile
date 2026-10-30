@@ -17,4 +17,11 @@ ifeq ($(PSL1GHT_BASE),)
     PSL1GHT_BASE := $(shell find / -iname "makefile.base" 2>/dev/null | head -n 1)
 endif
 
-include $(PSL1GHT_BASE)
+ifneq ($(PSL1GHT_BASE),)
+    include $(PSL1GHT_BASE)
+endif
+
+.PHONY: clean
+
+clean:
+	rm -f $(OBJS) $(TARGET).elf $(TARGET).sprx $(TARGET).prx
