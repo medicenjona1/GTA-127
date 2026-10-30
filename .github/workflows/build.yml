@@ -25,7 +25,6 @@ jobs:
         run: |
           if [ -d "GTAClient_PS3" ]; then
             cd GTAClient_PS3
-            make clean
             make
           else
             echo "Error: La carpeta 'GTAClient_PS3' no existe en el repositorio."
