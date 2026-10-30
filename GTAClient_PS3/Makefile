@@ -1,33 +1,20 @@
-3RDPARTY = 0
+TARGET      := GTAClient
+BUILD_PRX   := 1
+PRX_DIR     := .
 
-PRX_DIR = .
-TARGET = GTAClient
-OBJS = src/main.o
+OBJS        := src/main.o
 
-# Banderas de compilación Cell PPU
-CFLAGS = -O2 -Wall -mcpu=cell
-CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
-PRX_LDFLAGS = -Wl,-q -Wl,--export-dynamic
+CFLAGS      := -O2 -Wall -mcpu=cell
+CXXFLAGS    := -O2 -Wall -mcpu=cell -std=gnu++11 -fno-exceptions -fno-rtti
+PRX_LDFLAGS := -Wl,-q -Wl,--export-dynamic
 
-# Definición de PSL1GHT
-ifeq ($(strip $(PSL1GHT)),)
-    PSL1GHT := $(PS3DEV)
+# Localización de makefile.base en PSL1GHT
+PSL1GHT_BASE := $(wildcard $(PS3DEV)/ppu/share/psl1ght/makefile.base)
+ifeq ($(PSL1GHT_BASE),)
+    PSL1GHT_BASE := $(wildcard $(PS3DEV)/portlibs/ppu/share/psl1ght/makefile.base)
+endif
+ifeq ($(PSL1GHT_BASE),)
+    PSL1GHT_BASE := $(shell find / -iname "makefile.base" 2>/dev/null | head -n 1)
 endif
 
-# Inclusión de las reglas base de PSL1GHT
-ifneq ($(wildcard $(PSL1GHT)/ppu/share/psl1ght/makefile.base),)
-    include $(PSL1GHT)/ppu/share/psl1ght/makefile.base
-else ifneq ($(wildcard $(PSL1GHT)/share/psl1ght/makefile.base),)
-    include $(PSL1GHT)/share/psl1ght/makefile.base
-else ifneq ($(wildcard $(PS3DEV)/ppu/share/psl1ght/makefile.base),)
-    include $(PS3DEV)/ppu/share/psl1ght/makefile.base
-else ifneq ($(wildcard $(PS3DEV)/share/psl1ght/makefile.base),)
-    include $(PS3DEV)/share/psl1ght/makefile.base
-else
-    PSL1GHT_BASE := $(shell find / -iname "*makefile.base*" 2>/dev/null | head -n 1)
-    ifneq ($(PSL1GHT_BASE),)
-        include $(PSL1GHT_BASE)
-    else
-        $(error No se encontro Makefile.base de PSL1GHT en el entorno)
-    endif
-endif
+include $(PSL1GHT_BASE)
